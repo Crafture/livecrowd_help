@@ -4,6 +4,13 @@ volumes:
   livecrowd_help_local_redis_data: {}
 
 services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+
   django: &django
     build:
       context: .
@@ -69,3 +76,4 @@ services:
     ports:
       - '5555:5555'
     command: /start-flower
+

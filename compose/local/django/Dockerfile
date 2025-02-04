@@ -50,6 +50,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   # psycopg dependencies
   libpq-dev  \
   wait-for-it \
+  netcat-openbsd \
   # Translations dependencies
   gettext \
   # cleaning up unused files

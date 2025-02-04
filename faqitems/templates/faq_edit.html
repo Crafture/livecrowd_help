@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit FAQ Item</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CKEditor 5 Styling -->
+    <link rel="stylesheet" href="{% static 'django_ckeditor_5/ckeditor.css' %}">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-screen-lg mx-4">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Edit FAQ Item</h1>
+        
+        <form method="post" class="space-y-6" id="edit-faq-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            {{ form.media }}
+
+            <div class="mb-6">
+                <label class="block text-xl text-gray-700 font-semibold mb-2">Question</label>
+                <input type="text" name="question" class="w-full px-6 py-3 border rounded focus:ring-2 focus:ring-blue-500 text-lg" value="{{ form.question.value }}">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xl text-gray-700 font-semibold mb-2">Answer</label>
+                <div class="text-lg">
+                    {{ form.answer }}
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xl text-gray-700 font-semibold mb-2">Event</label>
+                <div class="text-lg">
+                    {{ form.event }}
+                </div>
+            </div>
+        </form>
+        
+        <div class="flex justify-end space-x-4 mt-4">
+            <a href="{{ next }}" class="px-6 py-3 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition text-lg">
+                Cancel
+            </a>
+            <button type="submit" form="edit-faq-form" class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-lg">
+                Save
+            </button>
+            <form method="post" action="{% url 'faq_delete' faq_item.pk %}" onsubmit="return confirm('Are you sure you want to delete this FAQ item?');" class="inline">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+                <button type="submit" class="px-6 py-3 bg-red-600 text-white rounded hover:bg-red-700 transition text-lg">
+                    Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
