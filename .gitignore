@@ -167,6 +167,7 @@ typings/
 Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
+faqitems/management/commands/raw_database_outyput.json
 
 # Dump file
 *.stackdump

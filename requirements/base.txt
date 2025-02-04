@@ -23,3 +23,6 @@ djangorestframework==3.15.2  # https://github.com/encode/django-rest-framework
 django-cors-headers==4.6.0  # https://github.com/adamchainz/django-cors-headers
 # DRF-spectacular for api documentation
 drf-spectacular==0.28.0  # https://github.com/tfranzel/drf-spectacular
+django-autoslug==1.9.9
+django-elasticsearch-dsl==8.0
+django-ckeditor-5==0.2.15
