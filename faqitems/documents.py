@@ -13,6 +13,14 @@ faq_index.settings(
 class FAQItemDocument(Document):
     
     event_id = fields.IntegerField(attr="event.pk")
+    
+    # Override the question field to add a keyword sub-field
+    question = fields.TextField(
+        attr='question',
+        fields={
+            'keyword': fields.KeywordField()
+        }
+    )
 
     class Index:
         name = 'faqitems'
@@ -20,7 +28,7 @@ class FAQItemDocument(Document):
 
     class Django:
         model = FAQItem
+        # Remove 'question' from here since we're defining it above
         fields = [
-            'question',
             'answer',
         ]

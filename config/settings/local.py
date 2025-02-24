@@ -17,7 +17,7 @@ SECRET_KEY = env(
 ALLOWED_HOSTS = ["*"]  # noqa: S104
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://7a2aec7a6169f695d0b47e2be7e1c5a6.loophole.site",
+    "https://696d0be68d4eaed78ecb44a08a5c8c7f.loophole.site",
     "http://127.0.0.1",
     "http://localhost",
 ]

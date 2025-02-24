@@ -9,3 +9,10 @@ class FAQItemForm(forms.ModelForm):
     class Meta:
         model = FAQItem
         fields = ["question", "answer", "event"]
+
+class FAQSearchForm(forms.Form):
+    q = forms.CharField(required=False, label="Search Query")
+    advanced = forms.BooleanField(required=False)
+    event_id = forms.IntegerField(required=False)
+    venue_id = forms.IntegerField(required=False)
+    all = forms.BooleanField(required=False)
