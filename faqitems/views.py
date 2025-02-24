@@ -1,76 +1,81 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import timezone
-from datetime import timedelta
-from django.db.models import Q
-from elasticsearch_dsl import Q as elQ
 from .models import Event, Venue, FAQItem
-from .forms import FAQItemForm
+from .forms import FAQItemForm, FAQSearchForm
 from .helpers import update_query_param
 from django.http import JsonResponse
 from django.urls import reverse
-from faqitems.documents import FAQItemDocument
+import re
 from django.contrib.auth.decorators import login_required
 
-# Imports for advanced search (PostgreSQL)
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from .search_helpers import build_dashboard_queryset, build_autocomplete_query
+
 
 @login_required
 def dashboard_view(request):
+    """
+    Render the dashboard with FAQ items filtered by search parameters.
+    The advanced search (searching both question and answer) is only applied when a search query is present.
+    """
+    search_form = FAQSearchForm(request.GET)
+    event_id = request.GET.get('event_id')
+    
+    if search_form.is_valid():
+        data = search_form.cleaned_data
+        search_query = data.get('q', '').strip()
+        advanced = data.get('advanced')
+        event_id = data.get('event_id') or event_id
+        venue_id = data.get('venue_id')
+        all_param = data.get('all')
+    else:
+        search_query = ''
+        advanced = False
+        venue_id = None
+        all_param = False
+
     all_events = Event.objects.all().order_by('display_name')
     all_venues = Venue.objects.all().order_by('display_name')
 
-    events_filtered = all_events
-
-    search_query = request.GET.get('q', '').strip()
     if search_query:
-        words = search_query.split()
-        if request.GET.get('advanced') == 'true':
-            search_vector = SearchVector('question', weight='A') + SearchVector('answer', weight='B')
-            search_query_obj = None
-            for word in words:
-                word_query = SearchQuery(word, search_type='plain')
-                search_query_obj = word_query if search_query_obj is None else search_query_obj & word_query
-            faqitems = (
-                FAQItem.objects
-                .annotate(rank=SearchRank(search_vector, search_query_obj))
-                .filter(rank__gte=0.1)
-                .order_by('-rank')
-            )
-        else:
-            q_objects = Q()
-            for word in words:
-                q_objects &= Q(question__icontains=word)
-            faqitems = FAQItem.objects.filter(q_objects)
+        faqitems_qs = build_dashboard_queryset(search_query, advanced, event_id, venue_id, all_param)
+    elif event_id:
+        faqitems_qs = FAQItem.objects.filter(event__id=event_id)
     else:
-        selected_event_id = request.GET.get('event_id')
-        selected_venue_id = request.GET.get('venue_id')
-        selected_all = request.GET.get('all')
+        faqitems_qs = FAQItem.objects.all()
 
-        if selected_all == 'true':
-            faqitems = FAQItem.objects.all()
-        elif selected_event_id:
-            faqitems = FAQItem.objects.filter(event_id=selected_event_id)
-        elif selected_venue_id:
-            venue = get_object_or_404(Venue, id=selected_venue_id)
-            event_ids = venue.event_set.values_list('id', flat=True)
-            faqitems = FAQItem.objects.filter(event_id__in=event_ids)
-        else:
-            faqitems = FAQItem.objects.all()
-
-    initial_faqitems = faqitems[:200]
-
+    initial_faqitems = faqitems_qs[:200]
     edited_faq_id = request.GET.get('edited_id')
+    selected_event_id = event_id or ''
 
     context = {
         'all_events': all_events,
         'all_venues': all_venues,
-        'events_filtered': events_filtered,
         'faqitems': initial_faqitems,
         'search_query': search_query,
-        'advanced': request.GET.get('advanced') == 'true',
+        'advanced': advanced,
         'edited_faq_id': edited_faq_id,
+        'search_form': search_form,
+        'selected_event_id': selected_event_id,
     }
-    return render(request, 'dashboard.html', context)
+    return render(request, 'faqitems/dashboard.html', context)
+
+@login_required
+def autocomplete(request):
+    """
+    Returns JSON suggestions based on the current query.
+    The same double-quote detection is used here so that queries like ?q="zoeken" only return results
+    matching that term (by searching individual words in the question field).
+    """
+    search_query = request.GET.get('q', '')
+    event_id = request.GET.get('event_id')
+    suggestions = []
+
+    if search_query:
+        s = build_autocomplete_query(search_query, event_id)
+        raw_suggestions = [hit.question for hit in s]
+        # Remove duplicates while preserving order
+        suggestions = list(dict.fromkeys(raw_suggestions))
+
+    return JsonResponse(suggestions, safe=False)
 
 @login_required
 def load_remaining_faqitems(request):
@@ -114,7 +119,7 @@ def faq_edit_view(request, pk):
     else:
         form = FAQItemForm(instance=faq_item)
 
-    return render(request, "faq_edit.html", {
+    return render(request, "faqitems/faq_edit.html", {
         "form": form,
         "faq_item": faq_item,
         "next": next_url,
@@ -129,55 +134,7 @@ def faq_delete_view(request, pk):
         faq_item.delete()
         return redirect(next_url)
     
-    return render(request, 'faq_confirm_delete.html', {
+    return render(request, 'faqitems/faq_confirm_delete.html', {
         'faq_item': faq_item,
         'next': next_url,
     })
-
-@login_required
-def autocomplete(request):
-    query = request.GET.get('q', '')
-    suggestions = []
-    
-    if query:
-        words = query.split()
-        
-        must_clauses = []
-        for word in words:
-            word_query = elQ(
-                "bool", 
-                should=[
-                    elQ("match_phrase_prefix", question=word),
-                    elQ("match", question={"query": word, "fuzziness": "AUTO"})
-                ],
-                minimum_should_match=1
-            )
-            must_clauses.append(word_query)
-        
-        combined_query = elQ("bool", must=must_clauses)
-        
-        event_id = request.GET.get('event_id')
-        if event_id:
-            try:
-                event_id = int(event_id)
-            except ValueError:
-                event_id = None
-            
-            if event_id is not None:
-                event_filter = elQ("term", event_id=event_id)
-                final_query = elQ("bool", must=[combined_query, event_filter])
-            else:
-                final_query = combined_query
-        else:
-            final_query = combined_query
-
-        search = FAQItemDocument.search().query(final_query)
-
-        raw_suggestions = [hit.question for hit in search]
-        unique_suggestions = []
-        for suggestion in raw_suggestions:
-            if suggestion not in unique_suggestions:
-                unique_suggestions.append(suggestion)
-        suggestions = unique_suggestions
-
-    return JsonResponse(suggestions, safe=False)

@@ -1,0 +1,82 @@
+<nav class="bg-blue-600 fixed w-full z-40 top-0 shadow">
+	<div class="mx-auto px-4 sm:px-6 lg:px-8">
+	  <div class="flex items-center justify-between h-16">
+		<!-- Brand -->
+		<div class="flex items-center">
+		  <a class="text-white text-xl font-semibold" href="#">Livecrowd Help</a>
+		</div>
+		<!-- Desktop Navigation (dropdowns, logout, etc.) -->
+		<div class="hidden lg:flex items-center ml-auto space-x-4">
+		  <!-- Dropdown example -->
+		  <div class="dropdown inline-block text-left relative">
+			<button class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-sm font-medium text-white hover:bg-blue-400 focus:outline-none">
+			  Venues
+			  <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+				viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+				  d="M19 9l-7 7-7-7" />
+			  </svg>
+			</button>
+			<div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 hidden">
+			  <ul class="py-1">
+				{% for venue in all_venues %}
+				<li>
+				  <a href="?venue_id={{ venue.id }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+					{{ venue.display_name }}
+				  </a>
+				</li>
+				{% endfor %}
+			  </ul>
+			</div>
+		  </div>
+		  <!-- Logout Form -->
+		  <form action="{% url 'account_logout' %}" method="post">
+			{% csrf_token %}
+			<button type="submit" class="text-white border border-white rounded-md py-1 px-4 hover:bg-white hover:text-blue-600 transition">
+			  Logout {{ user.name|default:"User" }}
+			</button>
+		  </form>
+		</div>
+		<!-- Mobile menu button -->
+		<div class="lg:hidden">
+		  <button id="mobile-menu-button" class="text-white focus:outline-none">
+			<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+				d="M4 6h16M4 12h16M4 18h16"></path>
+			</svg>
+		  </button>
+		</div>
+	  </div>
+	</div>
+	<!-- Mobile Menu -->
+	<div id="mobile-menu" class="hidden lg:hidden max-h-screen overflow-y-auto">
+		<div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+			<div class="border-b border-gray-700 pb-2">
+				<div class="w-full flex mb-8 justify-end">
+					<form action="{% url 'account_logout' %}" method="post" class="inline p-2">
+						{% csrf_token %}
+						<button type="submit" class="text-white border border-white rounded-md py-2 px-6">
+							Logout {{ user.name|default:"User" }}
+						</button>
+					</form>
+				</div>
+				<div class="">
+					<ul class="space-y-1">
+						<li>
+							<a href="{% url 'dashboard' %}" class="block p-3">
+								<div class="font-semibold text-white">All Questions</div>
+							</a>
+						</li>
+						{% for event in events_filtered %}
+						<li>
+							<a href="?event_id={{ event.id }}" class="block p-3">
+								<div class="font-semibold text-white">{{ event.display_name }}</div>
+							</a>
+						</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+  </nav>
