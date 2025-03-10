@@ -79,6 +79,8 @@ AWS_SECRET_ACCESS_KEY = env("DJANGO_AWS_SECRET_ACCESS_KEY")
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
 AWS_STORAGE_BUCKET_NAME = env("DJANGO_AWS_STORAGE_BUCKET_NAME")
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+AWS_LOCATION = "livecrowd_help"
+
 AWS_QUERYSTRING_AUTH = False
 # DO NOT change these unless you know what you're doing.
 _AWS_EXPIRY = 60 * 60 * 24 * 7
@@ -102,21 +104,21 @@ STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3.S3Storage",
         "OPTIONS": {
-            "location": "media",
+            "location": f"{AWS_LOCATION}/media",
             "file_overwrite": False,
         },
     },
     "staticfiles": {
         "BACKEND": "storages.backends.s3.S3Storage",
         "OPTIONS": {
-            "location": "static",
+            "location": f"{AWS_LOCATION}/static",
             "default_acl": "public-read",
         },
     },
 }
-MEDIA_URL = f"https://{aws_s3_domain}/media/"
+MEDIA_URL = f"https://{aws_s3_domain}/{AWS_LOCATION}/media/"
 COLLECTFASTA_STRATEGY = "collectfasta.strategies.boto3.Boto3Strategy"
-STATIC_URL = f"https://{aws_s3_domain}/static/"
+STATIC_URL = f"https://{aws_s3_domain}/{AWS_LOCATION}/static/"
 
 # EMAIL
 # ------------------------------------------------------------------------------
