@@ -219,6 +219,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "livecrowd_help.users.context_processors.allauth_settings",
+                "livecrowd_help.faqitems.context_processors.admin_url",
             ],
         },
     },
