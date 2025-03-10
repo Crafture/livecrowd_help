@@ -32,6 +32,10 @@ services:
       - production_postgres_data_backups:/backups
     env_file:
       - ./.envs/.production/.postgres
+    networks:
+      default:
+        aliases:
+          - db
 
   traefik:
     build:
