@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from .models import FAQItem, Venue
 from elasticsearch_dsl.query import Q as elQ
-from faqitems.documents import FAQItemDocument
+from .documents import FAQItemDocument
 import logging
 
 logger = logging.getLogger(__name__)

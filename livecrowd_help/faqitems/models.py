@@ -26,7 +26,7 @@ class TimestampedModel(models.Model):
         abstract = True
 
 class Venue(TimestampedModel):
-    display_name = models.CharField(max_length=200, default="Unknown Venue")
+    display_name = models.CharField(max_length=255)
     slug = AutoSlugField(populate_from='display_name', editable=False)
 
     def __str__(self):
@@ -37,7 +37,6 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=255,
         unique=True,
-        default="general"  # Default tag if none is provided
     )
 
     def save(self, *args, **kwargs):
@@ -49,13 +48,11 @@ class Tag(models.Model):
 
 
 class Event(TimestampedModel):
-    display_name = models.CharField(max_length=400, default="Untitled Event")
+    display_name = models.CharField(max_length=255)
     slug = AutoSlugField(populate_from='display_name', editable=False)
-    start_date = models.DateField(auto_now_add=True)  # Default to the current date
+    start_date = models.DateField(auto_now_add=True)
     mojo = models.BooleanField(default=False)
-    venue = models.ForeignKey(
-        Venue, on_delete=models.CASCADE, default=4
-    )  # Assuming a Venue with ID 1 exists
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE, null=True)
     tags = models.ManyToManyField(Tag, related_name='events')
 
     def __str__(self):
@@ -66,11 +63,9 @@ class Event(TimestampedModel):
 
 
 class FAQItem(TimestampedModel):
-    question = models.CharField(max_length=255, default="No question provided")
-    answer = models.TextField(default="No answer available")
-    event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, default=4
-    )  # Assuming an Event with ID 1 exists
+    question = models.CharField(max_length=255)
+    answer = models.TextField(max_length=255)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
     tags = models.ManyToManyField(Tag, related_name="faqs")
 
     def __str__(self):
