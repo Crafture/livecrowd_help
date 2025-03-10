@@ -40,16 +40,15 @@ def dashboard_view(request):
     elif event_id:
         faqitems_qs = FAQItem.objects.filter(event__id=event_id)
     else:
-        faqitems_qs = FAQItem.objects.all()
+        faqitems_qs = FAQItem.objects.all()[:200]
 
-    initial_faqitems = faqitems_qs[:200]
     edited_faq_id = request.GET.get('edited_id')
     selected_event_id = event_id or ''
 
     context = {
         'all_events': all_events,
         'all_venues': all_venues,
-        'faqitems': initial_faqitems,
+        'faqitems': faqitems_qs,
         'search_query': search_query,
         'advanced': advanced,
         'edited_faq_id': edited_faq_id,
@@ -70,7 +69,7 @@ def autocomplete(request):
     suggestions = []
 
     if search_query:
-        s = build_autocomplete_query(search_query, event_id)
+        s = build_autocomplete_query(search_query, event_id) 
         raw_suggestions = [hit.question for hit in s]
         # Remove duplicates while preserving order
         suggestions = list(dict.fromkeys(raw_suggestions))
@@ -105,27 +104,6 @@ def load_remaining_faqitems(request):
     return JsonResponse({'faqitems': data, 'has_more': has_more}, safe=False)
 
 @login_required
-def faq_edit_view(request, pk):
-    faq_item = get_object_or_404(FAQItem, pk=pk)
-    next_url = request.GET.get('next') or request.POST.get('next') or reverse('dashboard')
-    
-    next_url = update_query_param(next_url, 'edited_id', faq_item.pk)
-    
-    if request.method == "POST":
-        form = FAQItemForm(request.POST, instance=faq_item)
-        if form.is_valid():
-            form.save()
-            return redirect(next_url)
-    else:
-        form = FAQItemForm(instance=faq_item)
-
-    return render(request, "faqitems/faq_edit.html", {
-        "form": form,
-        "faq_item": faq_item,
-        "next": next_url,
-    })
-
-@login_required
 def faq_delete_view(request, pk):
     faq_item = get_object_or_404(FAQItem, pk=pk)
     next_url = request.GET.get('next') or reverse('dashboard')
@@ -137,4 +115,34 @@ def faq_delete_view(request, pk):
     return render(request, 'faqitems/faq_confirm_delete.html', {
         'faq_item': faq_item,
         'next': next_url,
+    })
+
+@login_required
+def faq_edit_or_create_view(request, pk=None):
+    faq_item = None
+    
+    if pk:
+        faq_item = get_object_or_404(FAQItem, pk=pk)
+    
+    next_url = request.GET.get('next') or request.POST.get('next') or reverse('dashboard')
+    
+    if request.method == "POST":
+        if faq_item:
+            form = FAQItemForm(request.POST, instance=faq_item)
+        else:
+            form = FAQItemForm(request.POST)
+        
+        if form.is_valid():
+            form.save()
+            return redirect(next_url)
+    else:
+        if faq_item:
+            form = FAQItemForm(instance=faq_item)
+        else:
+            form = FAQItemForm()
+
+    return render(request, "faqitems/faq_edit_or_create.html", {
+        "form": form,
+        "faq_item": faq_item,
+        "next": next_url,
     })

@@ -20,7 +20,7 @@
 
             <div class="mb-6">
                 <label class="block text-xl text-gray-700 font-semibold mb-2">Question</label>
-                <input type="text" name="question" class="w-full px-6 py-3 border rounded focus:ring-2 focus:ring-blue-500 text-lg" value="{{ form.question.value }}">
+                <input type="text" name="question" class="w-full px-6 py-3 border rounded focus:ring-2 focus:ring-blue-500 text-lg" value="{{ form.question.value|default_if_none:'' }}">
             </div>
 
             <div class="mb-6">
@@ -45,6 +45,7 @@
             <button type="submit" form="edit-faq-form" class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-lg">
                 Save
             </button>
+			{% if faq_item.pk %}
             <form method="post" action="{% url 'faq_delete' faq_item.pk %}" onsubmit="return confirm('Are you sure you want to delete this FAQ item?');" class="inline">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ next }}">
@@ -52,6 +53,7 @@
                     Delete
                 </button>
             </form>
+			{% endif %}
         </div>
     </div>
 </body>

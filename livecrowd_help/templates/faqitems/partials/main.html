@@ -41,7 +41,7 @@
 					onclick="copyAnswer('{{ faq.answer|escapejs }}')">
 					Copy Answer
 				</button>
-				<a href="{% url 'faq_edit' faq.id %}?next={{ request.get_full_path }}"
+				<a href="{% url 'faq_edit_or_create' faq.id %}?next={{ request.get_full_path }}"
 					class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
 					Edit
 				</a>
