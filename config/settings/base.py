@@ -83,17 +83,10 @@ THIRD_PARTY_APPS = [
     "django_celery_beat",
     "rest_framework",
     "rest_framework.authtoken",
-    "django_elasticsearch_dsl",
     "corsheaders",
     "drf_spectacular",
     "django_ckeditor_5",
 ]
-
-ELASTICSEARCH_DSL = {
-    'default': {
-        'hosts': 'http://elasticsearch:9200',  # Using the Docker service name instead of localhost
-    },
-}
 
 CKEDITOR_5_CONFIGS = {
     "default": {

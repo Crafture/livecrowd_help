@@ -4,13 +4,6 @@ volumes:
   livecrowd_help_local_redis_data: {}
 
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
-    environment:
-      - discovery.type=single-node
-    ports:
-      - "9200:9200"
-
   django: &django
     build:
       context: .
@@ -26,7 +19,7 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
     ports:
-      - '8001:8000'
+      - '8000:8000'
     command: /start
 
   postgres:
