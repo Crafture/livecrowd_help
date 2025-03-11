@@ -133,7 +133,11 @@ def faq_edit_or_create_view(request, pk=None):
             form = FAQItemForm(request.POST)
         
         if form.is_valid():
-            form.save()
+            faq = form.save(commit=False)
+            if not faq.pk:
+                faq.user_created = request.user
+            faq.user_last_modified = request.user
+            faq.save()
             return redirect(next_url)
     else:
         if faq_item:
