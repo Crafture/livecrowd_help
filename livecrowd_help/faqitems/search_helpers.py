@@ -3,8 +3,6 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from .models import FAQItem, Venue
-from elasticsearch_dsl.query import Q as elQ
-from .documents import FAQItemDocument
 import logging
 
 logger = logging.getLogger(__name__)
@@ -73,41 +71,32 @@ def build_dashboard_queryset(search_query, advanced, event_id, venue_id, all_par
 
 def build_autocomplete_query(search_query, event_id):
     """
-    Build and return an Elasticsearch query for FAQItem autocomplete.
-    If the query contains quoted text, use a match query with operator 'and'
-    so that every word in the quoted text is required.
-    Otherwise, build a bool query with match_phrase_prefix and fuzzy matching.
+    Build and return a Django QuerySet for FAQItem autocomplete.
+    
+    If the query contains quoted text, perform an exact substring (case-insensitive)
+    match on the question. Otherwise, for each word in the query, filter FAQItems
+    where the question either starts with or contains the word.
     """
     pattern = r'["\'](.*?)["\']'
     match = re.search(pattern, search_query)
+    
     if match:
         quoted_term = match.group(1).strip("'\"")
-        s = FAQItemDocument.search().query(
-            "match", 
-            question={"query": quoted_term, "operator": "and"}
-        )
+        no_whitespace_pattern = r'(?<![\w-])' + re.escape(quoted_term) + r'(?![\w-])'
+        qs = FAQItem.objects.filter(Q(question__iregex=no_whitespace_pattern) & Q(question__icontains=quoted_term))
     else:
-        words = search_query.split()
-        must_clauses = []
+        words = search_query.strip("'\"").split()
+        qs = FAQItem.objects.all()
         for word in words:
-            word_query = elQ(
-                "bool",
-                should=[
-                    elQ("match_phrase_prefix", question=word),
-                    elQ("match", question={"query": word, "fuzziness": "AUTO"})
-                ],
-                minimum_should_match=1
+            qs = qs.filter(
+                Q(question__istartswith=word) | Q(question__icontains=word)
             )
-            must_clauses.append(word_query)
-        combined_query = elQ("bool", must=must_clauses)
-        if event_id:
-            try:
-                event_id = int(event_id)
-                event_filter = elQ("term", event_id=event_id)
-                final_query = elQ("bool", must=[combined_query, event_filter])
-            except ValueError:
-                final_query = combined_query
-        else:
-            final_query = combined_query
-        s = FAQItemDocument.search().query(final_query)
-    return s
+    
+    if event_id:
+        try:
+            event_id = int(event_id)
+            qs = qs.filter(event_id=event_id)
+        except ValueError:
+            pass
+
+    return qs
