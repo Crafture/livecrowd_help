@@ -54,6 +54,7 @@ class Event(TimestampedModel):
     mojo = models.BooleanField(default=False)
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, null=True)
     tags = models.ManyToManyField(Tag, related_name='events')
+    favorite = models.BooleanField(default=False)
 
     def __str__(self):
         return self.display_name
@@ -67,6 +68,7 @@ class FAQItem(TimestampedModel):
     answer = models.TextField(max_length=255)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
     tags = models.ManyToManyField(Tag, related_name="faqs")
+    archived = models.BooleanField(default=False)
 
     def __str__(self):
         return self.question

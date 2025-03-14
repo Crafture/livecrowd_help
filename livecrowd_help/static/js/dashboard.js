@@ -58,6 +58,21 @@ function debounce(func, wait) {
 	  suggestionsDiv.classList.add('hidden');
 	}
   }
+
+  async function fetchArchived(pk) {
+	try {
+	  const response = await fetch(`/faq/${pk}/archive`, {
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json'
+		}
+	  });
+	  const result = await response.json();
+	  return result;
+	} catch (error) {
+	  console.error('Error archiving FAQ item:', error);
+	}
+  }
   
   const debouncedGetSuggestions = debounce(getSuggestions, 300);
   

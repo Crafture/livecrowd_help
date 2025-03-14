@@ -1,3 +1,5 @@
+{% csrf_token %}
+{% load static %}
 <form method="get" action="{% url 'dashboard' %}" class="mb-4" id="search-form">
 	<div class="flex items-center space-x-2 relative">
 		<input type="text" name="q" id="search" placeholder="Search FAQ..." value="{{ search_query }}"
@@ -15,7 +17,9 @@
 	</div>
 </form>
 
-{% if search_query %}
+{% if request.GET.archived == "true" %}
+  <h2 class="text-3xl text-gray-500 font-bold mb-6">Archived</h2>
+{% elif search_query %}
 <h2 class="text-3xl font-bold mb-6">Results for: {{ search_query }}</h2>
 {% else %}
 <h2 class="text-3xl font-bold mb-6">FAQ Items</h2>
@@ -45,12 +49,57 @@
 					class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
 					Edit
 				</a>
+				<button
+					class="px-3 py-1 border border-black text-black rounded hover:bg-black hover:text-white transition"
+					onclick="fetchArchived('{{ faq.pk }}')">
+					{% if faq.archived %}
+					Dearchive
+					{% else %}
+					Archive
+					{% endif %}
+				</button>
 			</div>
 		</div>
 	</div>
 	{% endfor %}
 	<div id="load-more-container" class="text-center my-6">
 	</div>
+	<script>
+
+		async function fetchArchived(pk) {
+			const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+			if (csrfToken) {
+				try {
+				const response = await fetch(`/faq/${pk}/archive`, {
+					method: 'POST',
+					credentials: 'same-origin',
+					headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': csrfToken,
+					}
+				});
+
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+
+				const result = await response.json();
+
+				const faqElement = document.getElementById(`faq-${pk}`);
+				if (faqElement) {
+					faqElement.style.display = 'none';
+				}
+
+				return result;
+				} catch (error) {
+				console.error('Error archiving FAQ item:', error);
+				}
+			} else {
+				console.error("No CSRF token found");
+			}
+		}
+
+	</script>
 </div>
 {% else %}
 <p class="text-gray-600">No FAQ items selected. Please choose an event, venue, or use the search.</p>
