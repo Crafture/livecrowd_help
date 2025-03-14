@@ -1,5 +1,5 @@
-{% csrf_token %}
 {% load static %}
+
 <form method="get" action="{% url 'dashboard' %}" class="mb-4" id="search-form">
 	<div class="flex items-center space-x-2 relative">
 		<input type="text" name="q" id="search" placeholder="Search FAQ..." value="{{ search_query }}"
@@ -67,9 +67,9 @@
 	<script>
 
 		async function fetchArchived(pk) {
-			const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
 			if (csrfToken) {
 				try {
+					console.log('csrfToken :>> ', csrfToken);
 				const response = await fetch(`/faq/${pk}/archive`, {
 					method: 'POST',
 					credentials: 'same-origin',
