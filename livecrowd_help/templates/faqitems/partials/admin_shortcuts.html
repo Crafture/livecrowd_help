@@ -1,3 +1,5 @@
+{% csrf_token %}
+
 <div class="bg-white rounded-lg shadow p-6">
 	<h5 class="text-2xl font-bold mb-8">Admin Shortcuts:</h5>
 	<ul class="space-y-5">
@@ -34,3 +36,52 @@
 
 	</ul>
 </div>
+<div class="bg-white rounded-lg shadow mt-8 p-6">
+	<h5 class="text-2xl font-bold mb-8">Other options:</h5>
+	<ul class="space-y-5">
+		<li>
+			<a href="{% url 'dashboard' %}?archived=true" class="block p-3 rounded hover:bg-gray-100">
+				<div class="font-semibold">View Archived</div>
+			</a>
+		</li>
+		{% if request.GET.event_id %}
+		<li>
+			<button id="favorite" class="block p-3 rounded hover:bg-gray-100" onclick="fetchFavorite('{{ request.GET.event_id }}')">
+				
+				<div class="font-semibold">Save Event to Favorites ⭐️</div>
+			</button>
+		</li>
+		{% endif %}
+	</ul>
+</div>
+<script>
+
+	async function fetchFavorite(event_id) {
+		const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+		if (csrfToken) {
+			try {
+			const response = await fetch(`/event/${event_id}/favorite`, {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+				}
+			});
+
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			const result = await response.json();
+
+			return result;
+			} catch (error) {
+			console.error('Error Favoriting Event:', error);
+			}
+		} else {
+			console.error("No CSRF token found");
+		}
+	}
+
+</script>

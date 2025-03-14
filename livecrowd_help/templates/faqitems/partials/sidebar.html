@@ -1,4 +1,27 @@
 <div class="bg-white rounded-lg shadow p-6">
+	<h5 class="text-xl font-bold mb-4">Favorite Events  ⭐️</h5>
+	<ul class="space-y-3">
+
+	{% if favorite_events %}
+	{% for event in favorite_events %}
+	<li>
+		<a href="?event_id={{ event.id }}" 
+		   class="block p-3 rounded hover:bg-gray-100 {% if event.id|stringformat:"s" == selected_event_id|stringformat:"s" %} bg-blue-100 {% endif %}">
+			<div class="font-semibold">{{ event.display_name }}</div>
+			<div class="text-sm text-gray-500">{{ event.start_date }}</div>
+		</a>
+	</li>
+	{% endfor %}
+	</ul>
+	{% else %}
+		<li>
+			<h2>No Favorite Events.</h2>
+		</li>
+	{% endif %}
+
+</div>
+
+<div class="bg-white rounded-lg shadow mt-8 p-6">
 	<h5 class="text-xl font-bold mb-4">Events</h5>
 	<ul class="space-y-3">
 		<!-- "All Questions" optie: als er geen event_id is geselecteerd, maak deze dan actief -->
