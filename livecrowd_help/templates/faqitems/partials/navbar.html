@@ -67,7 +67,15 @@
 								<div class="font-semibold text-white">All Questions</div>
 							</a>
 						</li>
-						{% for event in events_filtered %}
+						{% for event in favorite_events %}
+						<li>
+							<a href="?event_id={{ event.id }}" class="block p-3">
+								<div class="font-semibold text-white">{{ event.display_name }}</div>
+							</a>
+						</li>
+						{% endfor %}
+						<div class="w-full border-white border-b-2 my-2"></div>
+						{% for event in all_events %}
 						<li>
 							<a href="?event_id={{ event.id }}" class="block p-3">
 								<div class="font-semibold text-white">{{ event.display_name }}</div>
