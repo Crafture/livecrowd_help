@@ -46,7 +46,6 @@
 		{% if request.GET.event_id %}
 		<li>
 			<button id="favorite" class="block p-3 rounded hover:bg-gray-100" onclick="fetchFavorite('{{ request.GET.event_id }}')">
-
 				<div class="font-semibold">Save Event to Favorites ⭐️</div>
 			</button>
 		</li>
@@ -72,6 +71,7 @@
 			}
 
 			const result = await response.json();
+			location.reload();
 
 			return result;
 			} catch (error) {
