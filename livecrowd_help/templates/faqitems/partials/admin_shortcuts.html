@@ -55,6 +55,8 @@
 <script>
 
 	async function fetchFavorite(event_id) {
+		const meta = document.querySelector('meta[name="csrf-token"]');
+		csrfToken = meta ? meta.getAttribute('content') : '';
 		if (csrfToken) {
 			try {
 			const response = await fetch(`/event/${event_id}/favorite`, {
