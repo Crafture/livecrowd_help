@@ -71,7 +71,6 @@
 			const csrfToken = meta ? meta.getAttribute('content') : '';
 			if (csrfToken) {
 				try {
-					console.log('csrfToken :>> ', csrfToken);
 				const response = await fetch(`/faq/${pk}/archive`, {
 					method: 'POST',
 					credentials: 'same-origin',
