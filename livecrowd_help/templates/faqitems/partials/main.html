@@ -68,7 +68,7 @@
 
 		async function fetchArchived(pk) {
 			const meta = document.querySelector('meta[name="csrf-token"]');
-			csrfToken = meta ? meta.getAttribute('content') : '';
+			const csrfToken = meta ? meta.getAttribute('content') : '';
 			if (csrfToken) {
 				try {
 					console.log('csrfToken :>> ', csrfToken);
