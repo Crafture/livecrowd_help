@@ -1,40 +1,23 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>{% block title %}Livecrowd Help{% endblock %}</title>
-  <!-- Include Tailwind and Vue (from CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-  <link rel="icon" type="image/x-icon" href="https://cdn.crafture.com/livecrowd.com/livecrowd_logo.png">
-  <meta name="csrf-token" content="{{ csrf_token }}">
-  {% block head %}{% endblock %}
-  <style>
-    .dropdown-menu { display: block; }
-  </style>
-</head>
-<body id="body">
-  {% include "faqitems/partials/navbar.html" %}
-  <div class="w-full p-6 pt-20">
-    <div class="flex flex-col lg:flex-row -mx-4">
-		<!-- Sidebar -->
-		<aside class="hidden lg:block w-full lg:w-1/4 px-4 mb-8 lg:mb-0">
-		  {% include 'faqitems/partials/sidebar.html' %}
-		</aside>
-		<!-- Main Content -->
-		<main class="w-full lg:w-3/4 px-4 mt-8">
-		  {% include 'faqitems/partials/main.html' %}
-		</main>
-		{% if user.is_staff %}
-		<!-- Admin Shortcuts -->
-		<aside class="hidden lg:block w-full lg:w-1/4 px-4">
-		  {% include 'faqitems/partials/admin_shortcuts.html' %}
-		</aside>
-		{% endif %}
-	  </div>
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Livecrowd Help{% endblock %}
+
+{% block content %}
+  <div class="flex flex-col lg:flex-row -mx-4">
+    <!-- Sidebar -->
+    <aside class="hidden lg:block w-full lg:w-1/4 px-4 mb-8 lg:mb-0">
+      {% include "faqitems/partials/sidebar.html" %}
+    </aside>
+    <!-- Main Content -->
+    <main class="w-full lg:w-3/4 px-4 mt-8">
+      {% include "faqitems/partials/main.html" %}
+    </main>
+    {% if user.is_staff %}
+      <!-- Admin Shortcuts -->
+      <aside class="hidden lg:block w-full lg:w-1/4 px-4">
+        {% include "faqitems/partials/admin_shortcuts.html" %}
+        {% include "faqitems/partials/tagbar.html" %}
+      </aside>
+    {% endif %}
   </div>
-  <script src="{% static 'js/dashboard_new.js' %}"></script>
-  {% block scripts %}{% endblock %}
-</body>
-</html>
+{% endblock %}

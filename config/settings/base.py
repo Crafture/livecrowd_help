@@ -71,9 +71,9 @@ DJANGO_APPS = [
     # "django.contrib.humanize", # Handy template tags
     "django.contrib.admin",
     "django.forms",
-    "livecrowd_help.faqitems",
 ]
 THIRD_PARTY_APPS = [
+    "js_asset",
     "crispy_forms",
     "crispy_bootstrap5",
     "allauth",
@@ -85,30 +85,13 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "drf_spectacular",
-    "django_ckeditor_5",
+    "django_prose_editor",
 ]
-
-CKEDITOR_5_CONFIGS = {
-    "default": {
-        "toolbar": [
-            "heading",
-            "|",
-            "bold",
-            "italic",
-            "link",
-            "bulletedList",
-            "numberedList",
-            "blockQuote",
-        ],
-        "height": 300,
-        "width": "100%",
-    },
-}
 
 
 LOCAL_APPS = [
     "livecrowd_help.users",
-    # Your stuff: custom apps go here
+    "livecrowd_help.faqitems",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -213,7 +196,8 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "livecrowd_help.users.context_processors.allauth_settings",
                 "livecrowd_help.faqitems.context_processors.admin_url",
-                "django.template.context_processors.request"
+                "django.template.context_processors.request",
+                "js_asset.context_processors.importmap",
             ],
         },
     },
@@ -223,8 +207,8 @@ TEMPLATES = [
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 # http://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
-CRISPY_TEMPLATE_PACK = "bootstrap5"
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+# CRISPY_TEMPLATE_PACK = "bootstrap5"
+# CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 # FIXTURES
 # ------------------------------------------------------------------------------
@@ -350,7 +334,7 @@ ACCOUNT_FORMS = {"signup": "livecrowd_help.users.forms.UserSignupForm"}
 # # https://docs.allauth.org/en/latest/socialaccount/configuration.html
 # SOCIALACCOUNT_FORMS = {"signup": "livecrowd_help.users.forms.UserSocialSignupForm"}
 
-ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 
 # django-rest-framework
 # -------------------------------------------------------------------------------

@@ -276,4 +276,3 @@ livecrowd_help/media/
 .ipython/
 .env
 .envs/*
-!.envs/.local/

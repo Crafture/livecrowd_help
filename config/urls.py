@@ -13,14 +13,10 @@ from rest_framework.authtoken.views import obtain_auth_token
 from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
-    path("", include('livecrowd_help.faqitems.urls')),
+    path("", include("livecrowd_help.faqitems.urls")),
     path(settings.ADMIN_URL, admin.site.urls),
-
-    path("users/", include("livecrowd_help.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
-    path('ckeditor5/', include('django_ckeditor_5.urls')),
     path("logout/", LogoutView.as_view(), name="logout"),
-
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]
 if settings.DEBUG:

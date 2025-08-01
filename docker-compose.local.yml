@@ -19,7 +19,7 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
     ports:
-      - '8000:8000'
+      - "8000:8000"
     command: /start
 
   postgres:
@@ -31,16 +31,16 @@ services:
     volumes:
       - livecrowd_help_local_postgres_data:/var/lib/postgresql/data
       - livecrowd_help_local_postgres_data_backups:/backups
+      - ./backups:/backups
     env_file:
       - ./.envs/.local/.postgres
 
   redis:
     image: docker.io/redis:6
     container_name: livecrowd_help_local_redis
-    
+
     volumes:
       - livecrowd_help_local_redis_data:/data
-    
 
   celeryworker:
     <<: *django
@@ -67,6 +67,5 @@ services:
     image: livecrowd_help_local_flower
     container_name: livecrowd_help_local_flower
     ports:
-      - '5555:5555'
+      - "5555:5555"
     command: /start-flower
-

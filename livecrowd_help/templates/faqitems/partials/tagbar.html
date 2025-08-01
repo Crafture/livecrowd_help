@@ -1,0 +1,20 @@
+<div class="bg-white rounded-lg shadow mt-8 p-6">
+  <h5 class="text-xl font-bold mb-4">Tags</h5>
+  <ul class="space-y-3">
+    <li>
+      <a href="{% url 'dashboard' %}"
+         class="block p-3 rounded hover:bg-gray-100 {% if not selected_event_id %}bg-blue-100{% endif %}">
+        <div class="font-semibold">Clear Filter</div>
+      </a>
+    </li>
+    {% for tag in all_tags %}
+      <li>
+        <a href="?tags={{ tag.id }}"
+           class="block p-3 rounded hover:bg-gray-100 {% if tag.id|stringformat:"s" in selected_tags %} bg-blue-100{% endif %}">
+          <div class="font-semibold">{{ tag.name }}</div>
+          <div class="text-sm text-gray-500">{{ tag.slug }}</div>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

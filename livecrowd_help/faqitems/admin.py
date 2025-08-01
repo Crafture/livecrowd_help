@@ -1,10 +1,13 @@
 from django.contrib import admin
-from .models import Venue, Event, Tag, FAQItem
 
-# Register your models here.
+from .models import Event
+from .models import FAQItem
+from .models import Tag
+from .models import Venue
+
 
 class CustomAdmin(admin.ModelAdmin):
-    readonly_fields = ('user_created', 'user_last_modified')
+    readonly_fields = ["user_created", "user_last_modified", "slug"]
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:
@@ -15,14 +18,27 @@ class CustomAdmin(admin.ModelAdmin):
 
 @admin.register(Venue)
 class VenueAdmin(CustomAdmin):
-	pass
+    search_fields = ["name", "slug"]
+    ordering = ["name"]
+    list_display = ["name", "slug"]
+
 
 @admin.register(Event)
 class EventAdmin(CustomAdmin):
-    pass
+    search_fields = ["name", "slug"]
+    ordering = ["name"]
+    list_display = ["name", "slug"]
+
 
 @admin.register(FAQItem)
 class FAQItemAdmin(CustomAdmin):
-    pass
+    list_display = ["question", "updated_at", "user_created", "user_last_modified"]
+    ordering = ["-updated_at"]
 
-admin.site.register(Tag)
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ["name", "slug"]
+    search_fields = ["name", "slug"]
+    readonly_fields = ["slug"]
+    ordering = ["name"]

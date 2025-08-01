@@ -14,7 +14,7 @@ SECRET_KEY = env(
     default="Km8cm9Fythl5VqoZg2Izt5fR79UtgWJ5thPD53howiI4zSFLEZWuKfuI4Y479VBV",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["*"]  # noqa: S104
+ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://696d0be68d4eaed78ecb44a08a5c8c7f.loophole.site",
@@ -36,7 +36,8 @@ CACHES = {
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
 EMAIL_BACKEND = env(
-    "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend",
+    "DJANGO_EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
 )
 
 # django-debug-toolbar

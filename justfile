@@ -1,7 +1,7 @@
 export COMPOSE_FILE := "docker-compose.local.yml"
 
 ## Just does not yet manage signals for subprocesses reliably, which can lead to unexpected behavior.
-## Exercise caution before expanding its usage in production environments. 
+## Exercise caution before expanding its usage in production environments.
 ## For more information, see https://github.com/casey/just/issues/2473 .
 
 
@@ -18,6 +18,11 @@ build:
 up:
     @echo "Starting up containers..."
     @docker compose up -d --remove-orphans
+
+# upl: Start up containers with logs.
+upl:
+    @echo "Starting up containers with logs..."
+    @docker compose up --remove-orphans
 
 # down: Stop containers.
 down:

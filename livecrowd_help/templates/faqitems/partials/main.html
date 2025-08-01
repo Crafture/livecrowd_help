@@ -1,107 +1,105 @@
 {% load static %}
 
-<form method="get" action="{% url 'dashboard' %}" class="mb-4" id="search-form">
-	<div class="flex items-center space-x-2 relative">
-		<input type="text" name="q" id="search" placeholder="Search FAQ..." value="{{ search_query }}"
-			class="px-4 py-2 border rounded w-full" autocomplete="off">
-		<label class="flex items-center space-x-1">
-			<input type="checkbox" name="advanced" value="true" {% if advanced %}checked{% endif %}>
-			<span>Advanced</span>
-		</label>
-		<button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">
-			Search
-		</button>
-		<div id="suggestions"
-			class="hidden absolute top-full left-0 right-0 bg-white border border-gray-300 rounded shadow mt-1 z-30 max-h-48 overflow-y-auto">
-		</div>
-	</div>
+<form method="get"
+      action="{% url 'dashboard' %}"
+      class="mb-4"
+      id="search-form">
+  <div class="flex items-center space-x-2 relative">
+    <input type="text"
+           name="q"
+           id="search"
+           placeholder="Search FAQ..."
+           value="{{ search_query }}"
+           class="px-4 py-2 border rounded w-full"
+           autocomplete="off" />
+    <label class="flex items-center space-x-1">
+      <input type="checkbox"
+             name="advanced"
+             value="true"
+             {% if advanced %}checked{% endif %} />
+      <span>Advanced</span>
+    </label>
+    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Search</button>
+    <div id="suggestions"
+         class="hidden absolute top-full left-0 right-0 bg-white border border-gray-300 rounded shadow mt-1 z-30 max-h-48 overflow-y-auto">
+    </div>
+  </div>
 </form>
-
 {% if request.GET.archived == "true" %}
   <h2 class="text-3xl text-gray-500 font-bold mb-6">Archived</h2>
 {% elif search_query %}
-<h2 class="text-3xl font-bold mb-6">Results for: {{ search_query }}</h2>
+  <h2 class="text-3xl font-bold mb-6">Results for: {{ search_query }}</h2>
 {% else %}
-<h2 class="text-3xl font-bold mb-6">FAQ Items</h2>
+  <h2 class="text-3xl font-bold mb-6">FAQ Items</h2>
 {% endif %}
-
 {% if faqitems %}
-<div id="faq-items-container">
-	{% for faq in faqitems %}
-	<div id="faq-{{ faq.id }}"
-		class="bg-white rounded-lg shadow mb-6 {% if edited_faq_id == faq.id|stringformat:'s' %} ring-4 ring-blue-300 {% endif %}">
-		<div class="bg-blue-600 text-white rounded-t-lg px-4 py-3">
-			<h5 class="flex flew-row justify-between">
-				<span class="text-lg font-semibold">{{ faq.question|safe }}</span>
-				<a href="?event_id={{ faq.event.id }}"
-				class="text-md cursor-pointer font-normal py-1 px-4 border border-white rounded-md">{{ faq.event.display_name }}</a>
-			  </h5>
-		</div>
-		<div class="p-4 text-gray-800">
-			{{ faq.answer|safe }}
-			<div class="flex mt-4 space-x-3">
-				<button
-					class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition"
-					onclick="copyAnswer('{{ faq.answer|escapejs }}')">
-					Copy Answer
-				</button>
-				<a href="{% url 'faq_edit_or_create' faq.id %}?next={{ request.get_full_path }}"
-					class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
-					Edit
-				</a>
-				<button
-					class="px-3 py-1 border border-black text-black rounded hover:bg-black hover:text-white transition"
-					onclick="fetchArchived('{{ faq.pk }}')">
-					{% if faq.archived %}
-					Dearchive
-					{% else %}
-					Archive
-					{% endif %}
-				</button>
-			</div>
-		</div>
-	</div>
-	{% endfor %}
-	<div id="load-more-container" class="text-center my-6">
-	</div>
-	<script>
+  <div id="faq-items-container">
+    {% for faq in faqitems %}
+      <div id="faq-{{ faq.id }}"
+           class="bg-white rounded-lg shadow mb-6 {% if edited_faq_id == faq.id|stringformat:'s' %}ring-4 ring-blue-300{% endif %}">
+        <div class="bg-blue-600 text-white rounded-t-lg px-4 py-3">
+          <h5 class="flex flew-row justify-between">
+            <span class="text-lg font-semibold">{{ faq.question|safe }}</span>
+            <a href="?event_id={{ faq.event.id }}"
+               class="text-md cursor-pointer font-normal py-1 px-4 border border-white rounded-md">{{ faq.event.name }}</a>
+          </h5>
+        </div>
+        <div class="p-4 text-gray-800">
+          {{ faq.answer|safe }}
+          <div class="flex mt-4 space-x-3">
+            <button class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition"
+                    onclick="copyAnswer('{{ faq.answer_clean|escapejs }}')">Copy Answer</button>
+            <a href="{% url 'faq_edit_or_create' faq.id %}?next={{ request.get_full_path }}"
+               class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">Edit</a>
+            <button class="px-3 py-1 border border-black text-black rounded hover:bg-black hover:text-white transition"
+                    onclick="fetchArchived('{{ faq.pk }}')">
+              {% if faq.archived %}
+                Dearchive
+              {% else %}
+                Archive
+              {% endif %}
+            </button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+    <div id="load-more-container" class="text-center my-6"></div>
+    <script>
+      async function fetchArchived(pk) {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = meta ? meta.getAttribute('content') : '';
+        if (csrfToken) {
+          try {
+            const response = await fetch(`/faq/${pk}/archive`, {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+              }
+            });
 
-		async function fetchArchived(pk) {
-			const meta = document.querySelector('meta[name="csrf-token"]');
-			const csrfToken = meta ? meta.getAttribute('content') : '';
-			if (csrfToken) {
-				try {
-				const response = await fetch(`/faq/${pk}/archive`, {
-					method: 'POST',
-					credentials: 'same-origin',
-					headers: {
-					'Content-Type': 'application/json',
-					'X-CSRFToken': csrfToken,
-					}
-				});
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
 
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
+            const result = await response.json();
 
-				const result = await response.json();
+            const faqElement = document.getElementById(`faq-${pk}`);
+            if (faqElement) {
+              faqElement.style.display = 'none';
+            }
 
-				const faqElement = document.getElementById(`faq-${pk}`);
-				if (faqElement) {
-					faqElement.style.display = 'none';
-				}
-
-				return result;
-				} catch (error) {
-				console.error('Error archiving FAQ item:', error);
-				}
-			} else {
-				console.error("No CSRF token found");
-			}
-		}
-
-	</script>
-</div>
+            return result;
+          } catch (error) {
+            console.error('Error archiving FAQ item:', error);
+          }
+        } else {
+          console.error("No CSRF token found");
+        }
+      }
+    </script>
+  </div>
 {% else %}
-<p class="text-gray-600">No FAQ items selected. Please choose an event, venue, or use the search.</p>
+  <p class="text-gray-600">No FAQ items selected. Please choose an event, venue, or use the search.</p>
 {% endif %}

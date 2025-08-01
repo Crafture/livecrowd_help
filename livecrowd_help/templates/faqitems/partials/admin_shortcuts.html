@@ -1,87 +1,118 @@
-
 <div class="bg-white rounded-lg shadow p-6">
-	<h5 class="text-2xl font-bold mb-8">Admin Shortcuts:</h5>
-	<ul class="space-y-5">
-		<li>
-			<a href="/{{ django_admin_url }}" class="block p-3 rounded hover:bg-gray-100">
-				<div class="font-semibold">Admin Panel</div>
-			</a>
-		</li>
-		<li>
-			<a href="{% url 'faq_edit_or_create' %}" class="block p-3 rounded hover:bg-gray-100">
-				<div class="font-semibold">Add FAQ Item +</div>
-			</a>
-		</li>
-		<li>
-			<a href="/{{ django_admin_url }}faqitems/event/add/" class="block p-3 rounded hover:bg-gray-100">
-				<div class="font-semibold">Add Event +</div>
-			</a>
-		</li>
-		<li>
-			<a href="/{{ django_admin_url }}faqitems/venue/add/" class="block p-3 rounded hover:bg-gray-100">
-				<div class="font-semibold">Add Venue +</div>
-			</a>
-		</li>
-		<li>
-			<a href="/{{ django_admin_url }}users/user/add/" class="block p-3 rounded hover:bg-gray-100">
-				<div class="font-semibold">Add User +</div>
-			</a>
-		</li>
-		<li>
-			<a href="/{{ django_admin_url }}faqitems/tag/add/" class="block p-3 rounded hover:bg-gray-100">
-				<div class="font-semibold">Add Tag +</div>
-			</a>
-		</li>
-
-	</ul>
+  <h5 class="text-2xl font-bold mb-8">Admin Shortcuts:</h5>
+  <ul class="space-y-5">
+    <li>
+      <a href="/{{ django_admin_url }}"
+         class="block p-3 rounded hover:bg-gray-100">
+        <div class="font-semibold">Admin Panel</div>
+      </a>
+    </li>
+    {% if perms.faqitems.add_faqitem %}
+    <li>
+      <a href="{% url 'faq_edit_or_create' %}"
+         class="block p-3 rounded hover:bg-gray-100">
+        <div class="font-semibold">Add FAQ Item +</div>
+      </a>
+    </li>
+    {% endif %}
+    {% if perms.faqitems.add_event %}
+    <li>
+      <a href="/{{ django_admin_url }}faqitems/event/add/"
+         class="block p-3 rounded hover:bg-gray-100">
+        <div class="font-semibold">Add Event +</div>
+      </a>
+    </li>
+    {% endif %}
+    {% if perms.faqitems.add_venue %}
+    <li>
+      <a href="/{{ django_admin_url }}faqitems/venue/add/"
+         class="block p-3 rounded hover:bg-gray-100">
+        <div class="font-semibold">Add Venue +</div>
+      </a>
+    </li>
+    {% endif %}
+    {% if perms.faqitems.add_user %}
+    <li>
+      <a href="/{{ django_admin_url }}users/user/add/"
+         class="block p-3 rounded hover:bg-gray-100">
+        <div class="font-semibold">Add User +</div>
+      </a>
+    </li>
+    {% endif %}
+    {% if perms.faqitems.add_tag %}
+    <li>
+      <a href="/{{ django_admin_url }}faqitems/tag/add/"
+         class="block p-3 rounded hover:bg-gray-100">
+        <div class="font-semibold">Add Tag +</div>
+      </a>
+    </li>
+    {% endif %}
+    {% if perms.faqitems.add_faqitems_with_csv %}
+    <li>
+      <a href="{% url 'faq_bulk_upload_view' %}"
+         class="block p-3 rounded hover:bg-gray-100">
+        <div class="font-semibold">Upload FAQs Bulk</div>
+      </a>
+    </li>
+    {% endif %}
+    {% if perms.faqitems.add_tags_with_csv %}
+    <li>
+      <a href="{% url 'tag_bulk_upload_view' %}"
+         class="block p-3 rounded hover:bg-gray-100">
+        <div class="font-semibold">Upload Tags Bulk</div>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
 </div>
 <div class="bg-white rounded-lg shadow mt-8 p-6">
-	<h5 class="text-2xl font-bold mb-8">Other options:</h5>
-	<ul class="space-y-5">
-		<li>
-			<a href="{% url 'dashboard' %}?archived=true" class="block p-3 rounded hover:bg-gray-100">
-				<div class="font-semibold">View Archived</div>
-			</a>
-		</li>
-		{% if request.GET.event_id %}
-		<li>
-			<button id="favorite" class="block p-3 rounded hover:bg-gray-100" onclick="fetchFavorite('{{ request.GET.event_id }}')">
-				<div class="font-semibold">Save Event to Favorites ⭐️</div>
-			</button>
-		</li>
-		{% endif %}
-	</ul>
+  <h5 class="text-2xl font-bold mb-8">Other options:</h5>
+  <ul class="space-y-5">
+    <li>
+      <a href="{% url 'dashboard' %}?archived=true"
+         class="block p-3 rounded hover:bg-gray-100">
+        <div class="font-semibold">View Archived</div>
+      </a>
+    </li>
+    {% if request.GET.event_id %}
+      <li>
+        <button id="favorite"
+                class="block p-3 rounded hover:bg-gray-100"
+                onclick="fetchFavorite('{{ request.GET.event_id }}')">
+          <div class="font-semibold">Save Event to Favorites ⭐️</div>
+        </button>
+      </li>
+    {% endif %}
+  </ul>
 </div>
 <script>
+  async function fetchFavorite(event_id) {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = meta ? meta.getAttribute('content') : '';
+    if (csrfToken) {
+      try {
+        const response = await fetch(`/event/${event_id}/favorite`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+          }
+        });
 
-	async function fetchFavorite(event_id) {
-		const meta = document.querySelector('meta[name="csrf-token"]');
-		const csrfToken = meta ? meta.getAttribute('content') : '';
-		if (csrfToken) {
-			try {
-			const response = await fetch(`/event/${event_id}/favorite`, {
-				method: 'POST',
-				credentials: 'same-origin',
-				headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': csrfToken,
-				}
-			});
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
 
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
+        const result = await response.json();
+        location.reload();
 
-			const result = await response.json();
-			location.reload();
-
-			return result;
-			} catch (error) {
-			console.error('Error Favoriting Event:', error);
-			}
-		} else {
-			console.error("No CSRF token found");
-		}
-	}
-
+        return result;
+      } catch (error) {
+        console.error('Error Favoriting Event:', error);
+      }
+    } else {
+      console.error("No CSRF token found");
+    }
+  }
 </script>
