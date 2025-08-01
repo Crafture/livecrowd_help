@@ -28,7 +28,7 @@ class TimestampedModel(models.Model):
 
 
 class Venue(TimestampedModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     slug = AutoSlugField(populate_from=["name"], overwrite=True)
 
     def __str__(self):
@@ -38,6 +38,7 @@ class Venue(TimestampedModel):
 class Tag(models.Model):
     name = models.CharField(
         max_length=255,
+        unique=True,
     )
     slug = AutoSlugField(populate_from=["name"], overwrite=True)
 
@@ -53,7 +54,7 @@ class Tag(models.Model):
 
 
 class Event(TimestampedModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     slug = AutoSlugField(populate_from=["name"], overwrite=True)
     start_date = models.DateField(auto_now_add=True)
     mojo = models.BooleanField(default=False)
